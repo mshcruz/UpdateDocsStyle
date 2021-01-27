@@ -1,6 +1,6 @@
 function initializeSettings() {
   return {
-    newLogo: DriveApp.getFileById('190XfvwdRtoVU0B2RHjPZVea7LeEHy_oX').getAs(
+    newLogo: DriveApp.getFileById('1LwxRWnT5si5K6QaoADOQeb4ureA9b8lw').getAs(
       'image/png'
     ),
     newColor: '#ca2226',
@@ -12,7 +12,7 @@ function initializeSettings() {
 }
 
 function updateDocsStyle() {
-  const newStyle = initializeSettings();
+  const settings = initializeSettings();
   const docsFolder = DriveApp.getFolderById(
     '1sh622pEPAnsx-QJn0K3FLZznxYs_oscT'
   );
@@ -24,9 +24,9 @@ function updateDocsStyle() {
     let status = 'Success';
     try {
       const doc = DocumentApp.openByUrl(docs.next().getUrl());
-      updateHeader(doc, newStyle);
-      updateFooter(doc, newStyle);
-      updateHeaderFooterTables(doc, newStyle);
+      updateHeader(doc, settings);
+      updateFooter(doc, settings);
+      updateHeaderFooterTables(doc, settings);
       Logger.log(
         Utilities.formatString(
           'Updated document: %s (%s)',
@@ -47,7 +47,7 @@ function updateDocsStyle() {
     .getActiveSheet()
     .getRange(1, 1, result.length, result[0].length)
     .setValues(result)
-    .applyRowBanding(SpreadsheetApp.BandingTheme.BLUE);
+    .applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY);
   DriveApp.getFileById(report.getId()).moveTo(docsFolder);
 
   // Send report link by email
@@ -58,7 +58,7 @@ function updateDocsStyle() {
   );
 }
 
-function updateHeader(doc, newStyle) {
+function updateHeader(doc, settings) {
   const header = doc.getHeader();
   const originalHeaderTableIndex = 1;
   const originalHeaderTableNumColumns = 3;
@@ -68,13 +68,13 @@ function updateHeader(doc, newStyle) {
   }
   const originalHeaderTable = header.getChild(originalHeaderTableIndex);
   if (originalHeaderTable.getType() !== DocumentApp.ElementType.TABLE) {
-    throw Error('Header does not contain table.');
+    throw Error("The header's second element is not a table.");
   }
   if (
     originalHeaderTable.getRow(0).getNumCells() !==
     originalHeaderTableNumColumns
   ) {
-    throw Error('Header table has an unexpected number of columns.');
+    throw Error('The header table has an unexpected number of columns.');
   }
 
   // The logo is located in a paragraph element inside the first cell
@@ -88,9 +88,9 @@ function updateHeader(doc, newStyle) {
   originalHeaderLogo
     .getParent()
     .asParagraph()
-    .insertInlineImage(1, newStyle.newLogo)
+    .insertInlineImage(1, settings.newLogo)
     .setWidth(originalHeaderLogo.getWidth())
-    .setHeight(originalHeaderLogo.getHeight() - 5);
+    .setHeight(originalHeaderLogo.getHeight());
 
   originalHeaderLogo.removeFromParent();
 
@@ -101,18 +101,18 @@ function updateHeader(doc, newStyle) {
     .asParagraph();
   originalHeaderNameParagraph
     .editAsText()
-    .setForegroundColor(0, 0, newStyle.newColor)
-    .setForegroundColor(7, 7, newStyle.newColor);
+    .setForegroundColor(0, 0, settings.newColor)
+    .setForegroundColor(7, 7, settings.newColor);
 
   // Change phone number, which is in the third paragraph of the third cell
   originalHeaderTable
     .getCell(0, 2)
     .getChild(2)
     .asParagraph()
-    .setText(newStyle.newPhone);
+    .setText(settings.newPhone);
 }
 
-function updateFooter(doc, newStyle) {
+function updateFooter(doc, settings) {
   const footer = doc.getFooter();
   const originalFooterTableIndex = 1;
   const originalFooterTableNumColumns = 3;
@@ -123,19 +123,20 @@ function updateFooter(doc, newStyle) {
   }
   const originalFooterTable = footer.getChild(originalFooterTableIndex);
   if (originalFooterTable.getType() !== DocumentApp.ElementType.TABLE) {
-    throw Error('Footer does not contain table.');
+    throw Error("The footer's second element is not a table.");
   }
   if (
     originalFooterTable.getRow(0).getNumCells() !==
     originalFooterTableNumColumns
   ) {
+    throw Error('The footer table has an unexpected number of columns.');
   }
   let originalFooterLogo = footer
     .getChild(originalFooterLogoIndex)
     .asParagraph()
     .getChild(0);
   if (originalFooterLogo.getType() !== DocumentApp.ElementType.INLINE_IMAGE) {
-    throw Error('Footer does not contain logo.');
+    throw Error('The footer does not contain a logo.');
   }
 
   // Change footer email
@@ -143,33 +144,33 @@ function updateFooter(doc, newStyle) {
     .getCell(0, 0)
     .getChild(0)
     .asParagraph()
-    .setText(newStyle.newEmail);
+    .setText(settings.newEmail);
 
   // Change footer phone number
   originalFooterTable
     .getCell(0, 1)
     .getChild(0)
     .asParagraph()
-    .setText(newStyle.newPhone);
+    .setText(settings.newPhone);
 
   // Change footer URL
   originalFooterTable
     .getCell(0, 2)
     .getChild(0)
     .asParagraph()
-    .setText(newStyle.newUrl);
+    .setText(settings.newUrl);
 
   // Replace original logo
   originalFooterLogo
     .getParent()
     .asParagraph()
-    .insertInlineImage(1, newStyle.newLogo)
+    .insertInlineImage(1, settings.newLogo)
     .setWidth(originalFooterLogo.getWidth())
     .setHeight(originalFooterLogo.getHeight() - 2);
   originalFooterLogo.removeFromParent();
 }
 
-function updateHeaderFooterTables(doc, newStyle) {
+function updateHeaderFooterTables(doc, settings) {
   // Change border color using Docs API Service since it's not supported directly by Apps Script
   const docID = doc.getId();
   const apiDoc = Docs.Documents.get(docID);
@@ -182,7 +183,7 @@ function updateHeaderFooterTables(doc, newStyle) {
   const newBorderStyle = {
     width: { magnitude: 2, unit: 'PT' },
     dashStyle: 'SOLID',
-    color: { color: { rgbColor: newStyle.newColorRGB } },
+    color: { color: { rgbColor: settings.newColorRGB } },
   };
 
   const requests = {
