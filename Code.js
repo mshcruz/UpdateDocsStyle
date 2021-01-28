@@ -22,8 +22,9 @@ function updateDocsStyle() {
   const result = [['Name', 'URL', 'Status']];
   while (docs.hasNext()) {
     let status = 'Success';
+    let doc;
     try {
-      const doc = DocumentApp.openByUrl(docs.next().getUrl());
+      doc = DocumentApp.openByUrl(docs.next().getUrl());
       updateHeader(doc, settings);
       updateFooter(doc, settings);
       updateHeaderFooterTables(doc, settings);
