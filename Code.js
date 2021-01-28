@@ -131,7 +131,7 @@ function updateFooter(doc, settings) {
   ) {
     throw Error('The footer table has an unexpected number of columns.');
   }
-  let originalFooterLogo = footer
+  const originalFooterLogo = footer
     .getChild(originalFooterLogoIndex)
     .asParagraph()
     .getChild(0);
@@ -166,7 +166,7 @@ function updateFooter(doc, settings) {
     .asParagraph()
     .insertInlineImage(1, settings.newLogo)
     .setWidth(originalFooterLogo.getWidth())
-    .setHeight(originalFooterLogo.getHeight() - 2);
+    .setHeight(originalFooterLogo.getHeight());
   originalFooterLogo.removeFromParent();
 }
 
