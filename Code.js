@@ -89,7 +89,7 @@ function updateHeader(doc, settings) {
   originalHeaderLogo
     .getParent()
     .asParagraph()
-    .insertInlineImage(1, settings.newLogo)
+    .insertInlineImage(0, settings.newLogo)
     .setWidth(originalHeaderLogo.getWidth())
     .setHeight(originalHeaderLogo.getHeight());
 
@@ -165,7 +165,7 @@ function updateFooter(doc, settings) {
   originalFooterLogo
     .getParent()
     .asParagraph()
-    .insertInlineImage(1, settings.newLogo)
+    .insertInlineImage(0, settings.newLogo)
     .setWidth(originalFooterLogo.getWidth())
     .setHeight(originalFooterLogo.getHeight());
   originalFooterLogo.removeFromParent();
